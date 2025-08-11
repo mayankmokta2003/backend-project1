@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 
 const videoSchema = mongoose.Schema({
-    videofile: {
+    videoFile: {
         type: String,
         required: true,
     },
