@@ -14,6 +14,7 @@ try{
         resource_type: "auto"
     })
     console.log(resource.url)
+    return response
 
 
 }
@@ -23,3 +24,5 @@ catch{
 
 }
   }
+
+  export {uploadOncloudinary}
