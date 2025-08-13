@@ -9,6 +9,8 @@ dotenv.config({
   path: "./env",
 });
 
+
+
 connectDb()
   .then(() => {
     app.listen(process.env.PORT || 4000, () => {
@@ -19,6 +21,9 @@ connectDb()
   .catch((err) => {
     console.log("MONGO CONNECTION FAILED", err);
   });
+
+
+
 
 // import express from 'express'
 // import mongoose from 'mongoose'

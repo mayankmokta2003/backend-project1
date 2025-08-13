@@ -3,8 +3,7 @@ import { DB_NAME } from "../constants.js";
 
 const connectDb = async () => {
   try {
-    const realDbData = await mongoose.connect
-    (`${process.env.MONGOOSE_URI}/${DB_NAME}`)
+    const realDbData = await mongoose.connect(process.env.MONGOOSE_URI)
     console.log(`/n blablablabla ${realDbData.connection.host}`);
     return realDbData
   } catch (error) {
