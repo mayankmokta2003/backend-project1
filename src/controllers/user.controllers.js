@@ -20,7 +20,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // return the user response
 
   const { userName, email, fullName, password } = req.body;
-  console.log("email: ", email);
+ 
 
   // if(userName === ""){
   //   throw new ApiError(400 , "some field is empty")
@@ -34,7 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // to find existing user
   // this or is user if we want any one of it to be correct or both as well
   // or we could have written User.findOne({userName})
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     $or: [{ email }, { userName }],
   });
 
@@ -42,20 +42,30 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "user or email already exists");
   }
 
+  
   // to get the path of images
+  
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImagePath = req.files?.avatar[0]?.path;
 
+  // const coverImagePath = req.files?.coverImage?.[0];
+  let coverImageLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+  }
   if (!avatarLocalPath) {
     throw new ApiError(401, "avatar image is required");
   }
 
+
   const avatar = await uploadOncloudinary(avatarLocalPath);
-  const coverImage = await uploadOncloudinary(coverImagePath);
+  const coverImage = await uploadOncloudinary(coverImageLocalPath);
 
   if (!avatar) {
-    throw new ApiError(401, "avatar is required");
+    throw new ApiError(401, "avatar file is required");
   }
 
   // create entry in database
@@ -70,21 +80,17 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   // remove password refreshtoken
-const createdUser = await User.findById(user._id).select(
-  "-password -refreshToken"
-)
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
 
-if(!createdUser){
-  throw new ApiError(504 , "something went wrong")
-}
+  if (!createdUser) {
+    throw new ApiError(504, "something went wrong");
+  }
 
-return res.status(201).json(
-  new ApiResponse(200 , createdUser , "successfully registered")
-)
-
-
+  return res
+    .status(201)
+    .json(new ApiResponse(200, createdUser, "successfully registered"));
 });
-
-
 
 export { registerUser };

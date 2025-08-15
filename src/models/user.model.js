@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
-import { JsonWebTokenError } from "jsonwebtoken";
+// import { JsonWebTokenError } from "jsonwebtoken";
+import pkg from "jsonwebtoken";
+const { JsonWebTokenError } = pkg;
 import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
@@ -50,8 +52,8 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function () {
-  if (!this.modified("password")) return next();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
    this.password = await bcrypt.hash(this.password, 10)
   next();
 });
