@@ -16,6 +16,8 @@ const generateAccessAndRefreshToken = async (userId) => {
     user.save({ validateBeforeSave: false });
 
     return { accessToken, refreshToken };
+    console.log("axcccccccccc",accessToken)
+    console.log("reffffffffff",refreshToken)
   } catch (error) {
     throw new ApiError(416, "refresh and access token not created");
   }
@@ -114,24 +116,18 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
 const loginUser = asyncHandler(async (req, res) => {
-  // get the data from user
-  // check data is not empty
-  // check for password
-  // if password is correct create tokens
-  // remove pass tokens
-  // send tokens
-  // send cookies
-
-  const { userName, password, email } = req.body;
+ 
+  const {userName , email , password} =  await req.body
   console.log("hulululu",userName)
 
-  if (!userName || !email) {
-    throw new ApiError(405, "username || email is required");
+  if (!(userName || email)) {
+    throw new ApiError(405, "username or email is required");
   }
 
   const user = await User.findOne({
     $or: [{ userName }, { email }],
   });
+  console.log("userrrrrrr",user)
   if (!user) {
     throw new ApiError(402, "user des not exist");
   }
