@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOncloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import cookieParser from "cookie-parser";
+import jwt  from "jsonwebtoken";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -202,4 +203,46 @@ const logoutUser = asyncHandler(async(req,res)=>{
 
 
 
-export { registerUser, loginUser, logoutUser };
+const refreshAccessToken = asyncHandler(async(req,res)=>{
+
+  const incomingRefreshToken =  req.cookies.refreshToken || req.body.refreshToken
+  if(!incomingRefreshToken){
+    throw new ApiError(401,"no tokens found")
+  }
+
+  const decodedTokens = jwt.verify(incomingRefreshToken , process.env.REFRESH_TOKEN_SECRET)
+  if(!decodedTokens){
+    throw new ApiError(401,"no decoded tokens found")
+  }
+
+  const user = await User.findById(decodedTokens?._id)
+  if(!user){
+    throw new ApiError(401,"no user tokens found")
+  }
+
+  if(incomingRefreshToken !== user?.refreshToken){
+    throw new ApiError(201,"incorrect refresh token secret")
+  }
+  const {accessToken,refreshToken} = await generateAccessAndRefreshToken(user._id)
+
+  options= {
+    httpOnly: true,
+    secure: true
+  }
+
+  res.status(200)
+  .cookie("accessToken",accessToken,options)
+  .cookie("refreshToken",refreshToken,options)
+  .json(
+    new ApiResponse(
+      201,
+      {user: accessToken , refreshToken},
+      "new access token created successfully"
+    )
+  )
+})
+
+
+
+
+export { registerUser, loginUser, logoutUser ,refreshAccessToken};
