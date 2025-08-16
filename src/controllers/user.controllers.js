@@ -273,14 +273,14 @@ const getCurrentUser = asyncHandler(async(req,res)=>{
 })
 
 
-const updateFields = asyncHandler(async(req,res)=>{
+const updateAccountDetails = asyncHandler(async(req,res)=>{
   const {userName , email} = req.body
 
   if(!(userName || email)){
     throw new ApiError(402,"username or email cannot be empty")
   }
 
-  const user = User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
     req.user._id,
     {
       $set: {
@@ -289,7 +289,7 @@ const updateFields = asyncHandler(async(req,res)=>{
       }
     },
     {new: true}
-  )
+  ).select("-password")
 
   res.status(200)
   .json(
@@ -299,11 +299,70 @@ const updateFields = asyncHandler(async(req,res)=>{
       "email or username changed successfully"
     )
   )
-
-
 })
+
+
+
+const updateUserAvatar = asyncHandler(async(req,res)=>{
+  const avatarLocalPath = req.file?.path 
+  if(!avatarLocalPath){
+    throw new ApiError(401,"image local path not found")
+  }
+
+  const avatar = await uploadOncloudinary(avatar)
+  if(!avatar){
+    throw new ApiError(401,"image not uploaded on cloudinary")
+  }
+
+  const user = await User.findByIdAndUpdate(req.user?._id,
+    {
+      $set: {
+        avatar : avatar.url //hereee
+      }
+    },
+    {new: true}
+    ).select("-password")
+
+    res.status(200)
+.json(
+  new ApiResponse(201,
+    user,
+    "avatar image updated successfully"
+    )
+)
+})
+
+
+const updateCoverImage = asyncHandler(async(req,res)=>{
+  const coverImageLocalPath = req.file?.path
+  if(!coverImageLocalPath){
+    throw new ApiError(402, "cover image path not found")
+  }
+  coverImage = uploadOncloudinary(coverImageLocalPath)
+
+  const user = User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        coverImage : coverImage.url
+      }
+    }
+  ).select("-password")
+
+  res.status(200)
+  .json(
+    new ApiResponse(
+      201,
+      user,
+      "cover image updated successfully"
+    )
+  )
+})
+
 
 
 export { registerUser, loginUser, 
   logoutUser ,refreshAccessToken , 
-  changeCurrentPassword , getCurrentUser};
+  changeCurrentPassword , getCurrentUser,
+  updateAccountDetails , updateUserAvatar,
+  updateCoverImage};
