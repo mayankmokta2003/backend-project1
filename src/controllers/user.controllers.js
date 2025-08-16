@@ -273,6 +273,36 @@ const getCurrentUser = asyncHandler(async(req,res)=>{
 })
 
 
+const updateFields = asyncHandler(async(req,res)=>{
+  const {userName , email} = req.body
+
+  if(!(userName || email)){
+    throw new ApiError(402,"username or email cannot be empty")
+  }
+
+  const user = User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        userName,
+        email
+      }
+    },
+    {new: true}
+  )
+
+  res.status(200)
+  .json(
+    new ApiResponse(
+      201,
+      user,
+      "email or username changed successfully"
+    )
+  )
+
+
+})
+
 
 export { registerUser, loginUser, 
   logoutUser ,refreshAccessToken , 
