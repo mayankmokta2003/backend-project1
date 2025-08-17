@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
-// import { JsonWebTokenError } from "jsonwebtoken";
 import pkg from "jsonwebtoken";
-const { JsonWebTokenError } = pkg;
 import bcrypt from "bcrypt";
+import  Jwt  from "jsonwebtoken";
+const { JsonWebTokenError } = Jwt;
 
 const userSchema = new mongoose.Schema(
   {
@@ -63,7 +63,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 };
 
 userSchema.methods.generatreAccessToken = function () {
-  return JsonWebTokenError.sign(
+  return Jwt.sign(
     {
       _id: this._id,
       email: this.email,
@@ -72,13 +72,13 @@ userSchema.methods.generatreAccessToken = function () {
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: process.env.ACCESS_TOKEN_SECRET,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     }
   );
 };
 
 userSchema.methods.generatreRefreshToken = function (){
-    return JsonWebTokenError.sign(
+    return Jwt.sign(
         {
             _id: this._id
         },
